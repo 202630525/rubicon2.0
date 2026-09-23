@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, ChevronLeft, ChevronRight, Plus, Trash2, Calendar as CalendarIcon, Tag } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Plus, Trash2, Calendar as CalendarIcon, Tag, X } from 'lucide-react';
 import { 
   format, 
   addMonths, 
@@ -52,7 +52,7 @@ export default function CalendarView({ onBackToLobby }) {
       ...events,
       [dateKey]: [...dayEvents, newEntry]
     });
-    setNewEventText('');
+    setNewEventText(''); // Explicit State Flush
   };
 
   const deleteEvent = (eventId) => {
@@ -157,22 +157,33 @@ export default function CalendarView({ onBackToLobby }) {
           </div>
 
           <form onSubmit={addEvent} className="space-y-3">
-            <input
-              type="text"
-              placeholder="Add exam, assignment, or rest plan..."
-              value={newEventText}
-              onChange={(e) => setNewEventText(e.target.value)}
-              className="glass-input w-full text-xs"
-            />
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Add exam, assignment, or rest plan..."
+                value={newEventText}
+                onChange={(e) => setNewEventText(e.target.value)}
+                className="glass-input w-full text-xs pr-8"
+              />
+              {newEventText && (
+                <button
+                  type="button"
+                  onClick={() => setNewEventText('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
             <div className="flex gap-2">
               <select
                 value={eventType}
                 onChange={(e) => setEventType(e.target.value)}
-                className="glass-input flex-1 text-xs bg-slate-900 text-slate-200"
+                className="glass-input flex-1 text-xs bg-slate-900 text-slate-200 font-medium"
               >
-                <option value="exam">Exam / Quiz</option>
-                <option value="assignment">Assignment</option>
-                <option value="rest">Guilt-Free Rest</option>
+                <option value="exam" className="bg-slate-900 text-slate-100">Exam / Quiz</option>
+                <option value="assignment" className="bg-slate-900 text-slate-100">Assignment</option>
+                <option value="rest" className="bg-slate-900 text-slate-100">Guilt-Free Rest</option>
               </select>
               <button type="submit" className="glass-button px-3.5 text-xs font-bold text-emerald-300 border-emerald-400/30">
                 <Plus className="w-3.5 h-3.5" />
