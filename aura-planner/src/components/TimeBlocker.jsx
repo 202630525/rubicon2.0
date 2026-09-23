@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Sun, Moon, Sparkles, Trash2 } from 'lucide-react';
+import { ArrowLeft, Sun, Moon, Sparkles, Trash2, X } from 'lucide-react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 
 const CATEGORIES = [
@@ -40,6 +40,8 @@ export default function TimeBlocker({ onBackToLobby }) {
         category: selectedCategory,
         style: catObj.color,
       };
+      // Auto-flush custom label after tagging slot to prevent accidental spam
+      setBlockLabel(''); 
     }
     setBlocks({ ...blocks, [todayKey]: updatedToday });
   };
@@ -68,13 +70,23 @@ export default function TimeBlocker({ onBackToLobby }) {
       </header>
 
       <div className="glass-panel p-6 space-y-4">
-        <input
-          type="text"
-          placeholder="Activity label (e.g. Organic Chem, Reading, Walk)..."
-          value={blockLabel}
-          onChange={(e) => setBlockLabel(e.target.value)}
-          className="glass-input w-full text-sm"
-        />
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="Custom activity label (e.g. Organic Chem, Reading)..."
+            value={blockLabel}
+            onChange={(e) => setBlockLabel(e.target.value)}
+            className="glass-input w-full text-sm pr-8"
+          />
+          {blockLabel && (
+            <button
+              onClick={() => setBlockLabel('')}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
 
         <div className="flex flex-wrap gap-2.5 pt-1">
           {CATEGORIES.map((cat) => (
