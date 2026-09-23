@@ -1,32 +1,13 @@
-/* src/index.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer utilities {
   .glass-panel {
-    @apply bg-white/20 backdrop-blur-md border border-white/30 shadow-glass rounded-2xl transition-all duration-300;
-  }
-  .glass-card {
-    @apply bg-white/15 backdrop-blur-sm border border-white/25 shadow-sm rounded-xl hover:bg-white/25 transition-all duration-200;
-  }
-  .glass-input {
-    @apply bg-white/10 backdrop-blur-md border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 rounded-lg px-4 py-2;
+    @apply bg-white/20 backdrop-blur-md border border-white/30 shadow-2xl rounded-2xl;
   }
   .glass-button {
-    @apply bg-white/30 backdrop-blur-md border border-white/40 text-white font-medium hover:bg-white/40 active:scale-95 shadow-glass rounded-xl transition-all duration-200;
+    @apply bg-white/25 backdrop-blur-md border border-white/40 text-white font-semibold 
+           hover:bg-white/40 active:scale-95 shadow-lg rounded-full transition-all duration-300;
   }
-}
-
-/* Custom Scrollbar for Grid View */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
-}
-::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 3px;
 }
