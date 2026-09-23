@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Zap, HeartHandshake, Clock, Calendar, ArrowLeft, Plus, Trash2, CheckCircle2, Circle } from 'lucide-react';
+import { Zap, HeartHandshake, Clock, Calendar, ArrowLeft, Plus, Trash2, CheckCircle2, Circle, X, RefreshCw } from 'lucide-react';
 import { differenceInCalendarDays, parseISO } from 'date-fns';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 
@@ -37,11 +37,26 @@ export default function CentralLobby({ onBackToHero, onNavigate }) {
     setTop3(updated);
   };
 
+  const resetTop3 = () => {
+    setTop3([
+      { text: '', done: false },
+      { text: '', done: false },
+      { text: '', done: false }
+    ]);
+  };
+
+  const addHabit = (e) => {
+    e.preventDefault();
+    if (!newHabitText.trim()) return;
+    setHabits([...habits, { id: Date.now(), name: newHabitText.trim(), completed: false }]);
+    setNewHabitText(''); // Explicit State Flush
+  };
+
   const addDeadline = (e) => {
     e.preventDefault();
-    if (!newDeadline.title || !newDeadline.dueDate) return;
+    if (!newDeadline.title.trim() || !newDeadline.dueDate) return;
     setDeadlines([...deadlines, { id: Date.now(), ...newDeadline }]);
-    setNewDeadline({ title: '', dueDate: '', priority: 'Medium' });
+    setNewDeadline({ title: '', dueDate: '', priority: 'Medium' }); // Explicit State Flush
     setShowAddDeadline(false);
   };
 
@@ -93,14 +108,23 @@ export default function CentralLobby({ onBackToHero, onNavigate }) {
             <h2 className="text-base font-bold flex items-center gap-2 text-slate-100">
               <Zap className="w-4 h-4 text-amber-300" /> Today's Top 3
             </h2>
-            <span className="text-xs font-mono bg-amber-400/10 text-amber-300 px-2.5 py-1 rounded-full border border-amber-400/30 font-semibold">
-              {completedCount}/{activeTaskCount || 3}
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-mono bg-amber-400/10 text-amber-300 px-2.5 py-1 rounded-full border border-amber-400/30 font-semibold">
+                {completedCount}/{activeTaskCount || 3}
+              </span>
+              <button 
+                onClick={resetTop3} 
+                className="text-slate-400 hover:text-amber-300 p-1 transition-colors"
+                title="Reset Top 3"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
 
           <div className="space-y-3">
             {top3.map((item, idx) => (
-              <div key={idx} className="flex items-center gap-3">
+              <div key={idx} className="flex items-center gap-2">
                 <button 
                   onClick={() => toggleTop3Done(idx)} 
                   disabled={!item.text.trim()}
@@ -108,13 +132,25 @@ export default function CentralLobby({ onBackToHero, onNavigate }) {
                 >
                   {item.done ? <CheckCircle2 className="w-5 h-5 text-amber-300" /> : <Circle className="w-5 h-5" />}
                 </button>
-                <input
-                  type="text"
-                  placeholder={`Top Priority #${idx + 1}`}
-                  value={item.text}
-                  onChange={(e) => handleTop3TextChange(idx, e.target.value)}
-                  className={`glass-input flex-1 text-sm font-medium ${item.done ? 'line-through text-slate-400 bg-slate-900/40' : 'text-slate-100'}`}
-                />
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    placeholder={`Top Priority #${idx + 1}`}
+                    value={item.text}
+                    onChange={(e) => handleTop3TextChange(idx, e.target.value)}
+                    className={`glass-input w-full text-sm font-medium pr-8 ${
+                      item.done ? 'line-through text-slate-400 bg-slate-900/40' : 'text-slate-100'
+                    }`}
+                  />
+                  {item.text && (
+                    <button
+                      onClick={() => handleTop3TextChange(idx, '')}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -125,21 +161,28 @@ export default function CentralLobby({ onBackToHero, onNavigate }) {
           <h2 className="text-base font-bold flex items-center gap-2 text-slate-100">
             <HeartHandshake className="w-4 h-4 text-emerald-300" /> Habits & Rest
           </h2>
-          <form onSubmit={(e) => {
-            e.preventDefault();
-            if (!newHabitText.trim()) return;
-            setHabits([...habits, { id: Date.now(), name: newHabitText.trim(), completed: false }]);
-            setNewHabitText('');
-          }} className="flex gap-2">
-            <input
-              type="text"
-              placeholder="Add habit or rest goal..."
-              value={newHabitText}
-              onChange={(e) => setNewHabitText(e.target.value)}
-              className="glass-input flex-1 text-sm"
-            />
-            <button type="submit" className="glass-button p-2 text-emerald-300"><Plus className="w-4 h-4" /></button>
+          <form onSubmit={addHabit} className="flex gap-2 relative">
+            <div className="relative flex-1">
+              <input
+                type="text"
+                placeholder="Add habit or rest goal..."
+                value={newHabitText}
+                onChange={(e) => setNewHabitText(e.target.value)}
+                className="glass-input w-full text-sm pr-8"
+              />
+              {newHabitText && (
+                <button
+                  type="button"
+                  onClick={() => setNewHabitText('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+            <button type="submit" className="glass-button p-2.5 text-emerald-300"><Plus className="w-4 h-4" /></button>
           </form>
+
           <div className="space-y-2.5 max-h-52 overflow-y-auto pr-1">
             {habits.map((h) => (
               <div key={h.id} className="glass-card p-3 flex justify-between items-center text-sm">
@@ -167,14 +210,25 @@ export default function CentralLobby({ onBackToHero, onNavigate }) {
           </div>
 
           {showAddDeadline && (
-            <form onSubmit={addDeadline} className="glass-card p-3 space-y-2.5 text-xs border-sky-400/30">
-              <input
-                type="text"
-                placeholder="Title (e.g. OS Homework)"
-                value={newDeadline.title}
-                onChange={(e) => setNewDeadline({ ...newDeadline, title: e.target.value })}
-                className="glass-input w-full"
-              />
+            <form onSubmit={addDeadline} className="glass-card p-3.5 space-y-3 text-xs border-sky-400/30">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Title (e.g. OS Homework)"
+                  value={newDeadline.title}
+                  onChange={(e) => setNewDeadline({ ...newDeadline, title: e.target.value })}
+                  className="glass-input w-full pr-8"
+                />
+                {newDeadline.title && (
+                  <button
+                    type="button"
+                    onClick={() => setNewDeadline({ ...newDeadline, title: '' })}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
               <input
                 type="date"
                 value={newDeadline.dueDate}
